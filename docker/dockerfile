@@ -13,6 +13,7 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 COPY .npmrc .npmrc
+COPY .dockerignore .dockerignore
 COPY package.json package.json
 COPY package-lock.json package-lock.json
 RUN npm ci --omit=dev
