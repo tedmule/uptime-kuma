@@ -5,7 +5,7 @@ version: '3.3'
 
 services:
   uptime-kuma:
-    image: louislam/uptime-kuma:20240528-12-alpine
+    image: louislam/uptime-kuma:20240528-14-alpine
     container_name: uptime-kuma
     #volumes:
     #  - ./uptime-kuma-data:/app/data
