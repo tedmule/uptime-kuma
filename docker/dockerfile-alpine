@@ -1,4 +1,4 @@
-FROM 192.168.6.99/uptime-kuma/base:alpine AS build
+FROM 192.168.6.99/devops/uptime-kuma:base-alpine AS build
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
@@ -10,7 +10,7 @@ RUN npm --registy=http://registry.npmmirror.com ci --omit=dev
 COPY . .
 RUN chmod +x /app/extra/entrypoint.sh
 
-FROM 192.168.6.99/uptime-kuma/base:alpine AS release
+FROM 192.168.6.99/devops/uptime-kuma:base-alpine AS release
 WORKDIR /app
 
 # Copy app files from build layer
