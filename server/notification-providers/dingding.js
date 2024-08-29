@@ -8,6 +8,9 @@ class DingDing extends NotificationProvider {
 
     async send(notification, msg, monitorJSON = null, heartbeatJSON = null) {
         let okMsg = "Sent Successfully.";
+        console.log(notification);
+        console.log(monitorJSON);
+        console.log(heartbeatJSON);
 
         try {
             if (heartbeatJSON != null) {
@@ -15,7 +18,7 @@ class DingDing extends NotificationProvider {
                     msgtype: "markdown",
                     markdown: {
                         title: `[${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["name"]}`,
-                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["name"]} \n> ${heartbeatJSON["msg"]}\n> Time (${heartbeatJSON["timezone"]}): ${heartbeatJSON["localDateTime"]}`,
+                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["pathName"]} \n> Time: (${heartbeatJSON["timezone"]}): ${heartbeatJSON["localDateTime"]}\n\nMsg: ${heartbeatJSON["msg"]}\n\nDesc: ${monitorJSON["description"]}\n`,
                     }
                 };
                 if (this.sendToDingDing(notification, params)) {
