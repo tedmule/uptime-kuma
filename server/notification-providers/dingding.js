@@ -8,9 +8,9 @@ class DingDing extends NotificationProvider {
 
     async send(notification, msg, monitorJSON = null, heartbeatJSON = null) {
         let okMsg = "Sent Successfully.";
-        console.log(notification);
-        console.log(monitorJSON);
-        console.log(heartbeatJSON);
+        // console.log(notification);
+        // console.log(monitorJSON);
+        // console.log(heartbeatJSON);
 
         try {
             if (heartbeatJSON != null) {

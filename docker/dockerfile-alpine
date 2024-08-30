@@ -2,11 +2,14 @@ FROM 192.168.6.99/devops/uptime-kuma:base-alpine AS build
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+ENV NODE_OPTIONS="--dns-result-order=ipv4first"
+ENV HTTP_PROXY=http://192.168.20.35:10811
+ENV HTTPS_PROXY=http://192.168.20.35:10811
 
 COPY .npmrc .npmrc
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-RUN npm --registy=http://registry.npmmirror.com ci --omit=dev
+RUN env && npm --registy=http://registry.npmmirror.com ci --omit=dev
 COPY . .
 RUN chmod +x /app/extra/entrypoint.sh
 
