@@ -21,5 +21,5 @@ clean:
 #npm run update-language-files --language=zh-CN && export VERSION=$(VERSION) && npm run build-my-docker
 
 image:
-	export VERSION=$(VERSION) && npm run build-my-docker
+	export VERSION=$(VERSION) && npm run build-my-docker-alpine
 

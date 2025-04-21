@@ -13,7 +13,7 @@
         <header v-if="! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
             <router-link to="/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <object class="bi me-2 ms-4" width="40" height="40" data="/icon.png" />
-                <span class="fs-4 title">&nbsp;快速监测系统</span>
+                <span class="fs-4 title">&nbsp;{{title}}</span>
             </router-link>
 
             <a v-if="hasNewVersion" target="_blank" href="https://github.com/louislam/uptime-kuma/releases" class="btn btn-info me-3">
@@ -86,7 +86,7 @@
             <router-link to="/dashboard" class="d-flex align-items-center text-dark text-decoration-none">
                 <object class="bi" width="40" height="40" data="/icon.png" />
                 <!-- <span class="fs-4 title ms-2">Uptime Kuma</span> -->
-                <span class="fs-4 title ms-2">接口监控系统</span>
+                <span class="fs-4 title ms-2">{{title}}</span>
             </router-link>
         </header>
 
@@ -124,6 +124,7 @@
 <script>
 import Login from "../components/Login.vue";
 import compareVersions from "compare-versions";
+import axios from "axios";
 
 export default {
 
@@ -132,7 +133,9 @@ export default {
     },
 
     data() {
-        return {};
+        return {
+            title: "Uptime",
+        };
     },
 
     computed: {
@@ -146,11 +149,12 @@ export default {
         },
 
         hasNewVersion() {
-            if (this.$root.info.latestVersion && this.$root.info.version) {
-                return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
-            } else {
-                return false;
-            }
+            return false
+            // if (this.$root.info.latestVersion && this.$root.info.version) {
+            //     return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
+            // } else {
+            //     return false;
+            // }
         },
 
     },
@@ -159,8 +163,16 @@ export default {
 
     },
 
-    mounted() {
-
+    async mounted() {
+        try {
+          // 调用后端 API
+          const response = await axios.get('/api/title');
+          console.log(response);
+          this.title = response.data.title;
+        } catch (error) {
+          console.error('Failed to fetch env variable:', error);
+          this.title = 'Uptime';
+        }
     },
 
     methods: {

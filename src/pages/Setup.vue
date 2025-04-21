@@ -5,7 +5,7 @@
                 <div>
                     <object width="64" height="64" data="/icon.png" />
                     <div style="font-size: 28px; font-weight: bold; margin-top: 5px;">
-                        快速监测系统
+                        Setup
                     </div>
                 </div>
 

@@ -8,17 +8,20 @@ class DingDing extends NotificationProvider {
 
     async send(notification, msg, monitorJSON = null, heartbeatJSON = null) {
         let okMsg = "Sent Successfully.";
-        // console.log(notification);
-        // console.log(monitorJSON);
-        // console.log(heartbeatJSON);
+        // console.log("________________", notification);
+        // console.log("________________", monitorJSON);
+        // console.log("________________", heartbeatJSON);
 
         try {
+            // Get uptime location from API
+            let location = process.env.UPTIME_LOCATION || "位置未定义"
+
             if (heartbeatJSON != null) {
                 let params = {
                     msgtype: "markdown",
                     markdown: {
                         title: `[${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["name"]}`,
-                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["pathName"]} \n> Time: (${heartbeatJSON["timezone"]}): ${heartbeatJSON["localDateTime"]}\n\nMsg: ${heartbeatJSON["msg"]}\n\nDesc: ${monitorJSON["description"]}\n`,
+                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["pathName"]} \n> Time: (${heartbeatJSON["timezone"]}): ${heartbeatJSON["localDateTime"]}\n\nMsg: ${heartbeatJSON["msg"]}\n\nDesc: ${monitorJSON["description"]}\n\nLocation: ${location}\n`,
                     }
                 };
                 if (this.sendToDingDing(notification, params)) {
