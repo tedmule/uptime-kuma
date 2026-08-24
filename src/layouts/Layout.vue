@@ -18,8 +18,7 @@
                 to="/dashboard"
                 class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none"
             >
-                <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title">{{ $t("Uptime Kuma") }}</span>
+                <span class="fs-4 title">&nbsp;&nbsp;{{title}}</span>
             </router-link>
 
             <a
@@ -120,8 +119,7 @@
         <!-- Mobile header -->
         <header v-else class="d-flex flex-wrap justify-content-center pt-2 pb-2 mb-3">
             <router-link to="/dashboard" class="d-flex align-items-center text-dark text-decoration-none">
-                <object class="bi" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title ms-2">Uptime Kuma</span>
+                <span class="fs-4 title ms-2">&nbsp;{{title}}</span>
             </router-link>
         </header>
 
@@ -169,6 +167,7 @@
 import Login from "../components/Login.vue";
 import compareVersions from "compare-versions";
 import { useToast } from "vue-toastification";
+import axios from "axios";
 const toast = useToast();
 
 export default {
@@ -178,6 +177,7 @@ export default {
 
     data() {
         return {
+            title: "Uptime",
             toastContainer: null,
             numActiveToasts: 0,
             toastContainerObserver: null,
@@ -204,7 +204,17 @@ export default {
 
     watch: {},
 
-    mounted() {
+    async mounted() {
+        try {
+          // 调用后端 API
+          const response = await axios.get('/api/title');
+          console.log(response);
+          this.title = response.data.title;
+        } catch (error) {
+          console.error('Failed to fetch env variable:', error);
+          this.title = 'Uptime';
+        }
+
         this.toastContainer = document.querySelector(".bottom-right.toast-container");
 
         // Watch the number of active toasts

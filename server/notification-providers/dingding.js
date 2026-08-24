@@ -17,12 +17,15 @@ class DingDing extends NotificationProvider {
         const finalList = [...(mobileList || []), ...(userList || [])];
         const mentionStr = finalList.length > 0 ? "\n" : "" + finalList.map((item) => `@${item}`).join(" ");
         try {
+            // Get uptime location from API
+            let location = process.env.UPTIME_LOCATION || "位置未配置"
+            
             if (heartbeatJSON != null) {
                 let params = {
                     msgtype: "markdown",
                     markdown: {
                         title: `[${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["name"]}`,
-                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["name"]} \n> ${heartbeatJSON["msg"]}\n> Time (${heartbeatJSON["timezone"]}): ${heartbeatJSON["localDateTime"]}${mentionStr}`,
+                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["pathName"]} \n> ${heartbeatJSON["msg"]}\n\n 时间: ${heartbeatJSON["localDateTime"]}(${heartbeatJSON["timezone"]})\n\n描述: ${monitorJSON["description"]}\n\n监控点: ${location}\n`,
                     },
                     at: {
                         isAtAll: mentionAll,

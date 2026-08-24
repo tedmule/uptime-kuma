@@ -564,6 +564,17 @@ router.get("/api/badge/:id/response", cache("5 minutes"), async (request, respon
     }
 });
 
+router.get("/api/title", cache("5 minutes"), async (request, response) => {
+    allowAllOrigin(response);
+
+    const title = process.env.UPTIME_TITLE || 'Uptime'
+    const location = process.env.UPTIME_LOCATION || '位置未定义'
+    response.json({
+        "title": title,
+        "location": location
+    })
+})
+
 /**
  * Determines the status of the next beat in the push route handling.
  * @param {string} status - The reported new status.
