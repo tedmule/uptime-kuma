@@ -25,7 +25,7 @@ class DingDing extends NotificationProvider {
                     msgtype: "markdown",
                     markdown: {
                         title: `[${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["name"]}`,
-                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["pathName"]} \n> ${heartbeatJSON["msg"]}\n\n 时间: ${heartbeatJSON["localDateTime"]}(${heartbeatJSON["timezone"]})\n\n描述: ${monitorJSON["description"]}\n\n监控点: ${location}\n`,
+                        text: `## [${this.statusToString(heartbeatJSON["status"])}] ${monitorJSON["pathName"]} \n> ${heartbeatJSON["msg"]}\n\n 时间: ${heartbeatJSON["localDateTime"]}(${heartbeatJSON["timezone"]})\n\nHost/Port: ${monitorJSON["hostname"]}:${monitorJSON["port"]}\n\nURL: ${monitorJSON["url"]}\n\n描述: ${monitorJSON["description"]}\n\n监控点: ${location}\n`,
                     },
                     at: {
                         isAtAll: mentionAll,
