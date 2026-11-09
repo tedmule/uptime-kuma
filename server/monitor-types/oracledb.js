@@ -14,6 +14,97 @@ class OracleDbMonitorType extends MonitorType {
     conditionVariables = [new ConditionVariable("result", defaultStringOperators)];
 
     /**
+     * Get the active Oracle connection mode.
+     *
+     * Defaults to thin mode so regular Oracle DB monitoring works without local
+     * Oracle client libraries. Set ORACLE_CONNECTION_MODE=thick to force the OCI
+     * client path for environments that require the local Oracle client.
+     *
+     * @returns {"thin"|"thick"}
+     */
+    getConnectionMode() {
+        const mode = (process.env.ORACLE_CONNECTION_MODE || "thin").trim().toLowerCase();
+        return mode === "thick" ? "thick" : "thin";
+    }
+
+    /**
+     * Resolve the local Oracle client library path for thick mode.
+     *
+     * This is required when the target Oracle system only accepts OCI/thick connections.
+     *
+     * @returns {{libDir?: string}|undefined}
+     */
+    getOracleClientInitConfig() {
+        const libDir = process.env.ORACLE_HOME || process.env.ORACLE_CLIENT_LIB_DIR;
+        return libDir ? { libDir } : undefined;
+    }
+
+    /**
+     * Preserve the original Oracle thin connection string as entered by the user.
+     *
+     * node-oracledb accepts Easy Connect strings like "host:port/service_name"
+     * directly in thin mode, so we should not re-parse or strip them here.
+     *
+     * @param {string} connectionString The Oracle DB connection string.
+     * @param {string} username Oracle DB username.
+     * @param {string} password Oracle DB password.
+     * @returns {{connectString: string, user: string, password: string}}
+     */
+    buildThinConnectionConfig(connectionString, username, password) {
+        const normalizedConnectString = (connectionString || "").trim();
+        return {
+            connectString: normalizedConnectString,
+            user: (username || "").trim(),
+            password: (password || "").trim(),
+        };
+    }
+
+    /**
+     * Build the appropriate connection object for either thin or thick mode.
+     *
+     * @param {string} connectionString The Oracle DB connection string.
+     * @param {string} username Oracle DB username.
+     * @param {string} password Oracle DB password.
+     * @returns {{connectString?: string, host?: string, port?: number, serviceName?: string, user: string, password: string}}
+     */
+    getConnectionOptions(connectionString, username, password) {
+        if (this.getConnectionMode() === "thick") {
+            return {
+                connectString: (connectionString || "").trim(),
+                user: (username || "").trim(),
+                password: (password || "").trim(),
+            };
+        }
+
+        return this.buildThinConnectionConfig(connectionString, username, password);
+    }
+
+    /**
+     * Initialize Oracle's thick client if the local library is available.
+     *
+     * @returns {void}
+     */
+    initializeOracleClient() {
+        if (this.getConnectionMode() !== "thick" || typeof oracledb.initOracleClient !== "function") {
+            return;
+        }
+
+        try {
+            const config = this.getOracleClientInitConfig();
+            if (config) {
+                oracledb.initOracleClient(config);
+            } else {
+                oracledb.initOracleClient();
+            }
+        } catch (error) {
+            if (error && error.message && error.message.includes("already initialized")) {
+                return;
+            }
+            throw error;
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     async check(monitor, heartbeat, _server) {
@@ -75,11 +166,8 @@ class OracleDbMonitorType extends MonitorType {
     async oracledbQuery(connectionString, query, username, password) {
         let connection;
         try {
-            connection = await oracledb.getConnection({
-                connectString: connectionString.trim(),
-                user: username.trim(),
-                password: password.trim(),
-            });
+            this.initializeOracleClient();
+            connection = await oracledb.getConnection(this.getConnectionOptions(connectionString, username, password));
             const result = await connection.execute(query, [], {
                 outFormat: oracledb.OUT_FORMAT_OBJECT,
             });
@@ -114,11 +202,8 @@ class OracleDbMonitorType extends MonitorType {
     async oracledbQuerySingleValue(connectionString, query, username, password) {
         let connection;
         try {
-            connection = await oracledb.getConnection({
-                connectString: connectionString,
-                user: username,
-                password: password,
-            });
+            this.initializeOracleClient();
+            connection = await oracledb.getConnection(this.getConnectionOptions(connectionString, username, password));
             const result = await connection.execute(query, [], {
                 outFormat: oracledb.OUT_FORMAT_OBJECT,
             });

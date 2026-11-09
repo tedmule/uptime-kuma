@@ -49,6 +49,63 @@ async function createAndStartOracleContainer() {
     };
 }
 
+test("getConnectionMode() defaults to thin mode", () => {
+    const previousMode = process.env.ORACLE_CONNECTION_MODE;
+    delete process.env.ORACLE_CONNECTION_MODE;
+
+    try {
+        const oracleMonitor = new OracleDbMonitorType();
+        assert.strictEqual(oracleMonitor.getConnectionMode(), "thin");
+    } finally {
+        if (previousMode === undefined) {
+            delete process.env.ORACLE_CONNECTION_MODE;
+        } else {
+            process.env.ORACLE_CONNECTION_MODE = previousMode;
+        }
+    }
+});
+
+test("getConnectionMode() supports thick mode when explicitly configured", () => {
+    const previousMode = process.env.ORACLE_CONNECTION_MODE;
+    process.env.ORACLE_CONNECTION_MODE = "thick";
+
+    try {
+        const oracleMonitor = new OracleDbMonitorType();
+        assert.strictEqual(oracleMonitor.getConnectionMode(), "thick");
+    } finally {
+        if (previousMode === undefined) {
+            delete process.env.ORACLE_CONNECTION_MODE;
+        } else {
+            process.env.ORACLE_CONNECTION_MODE = previousMode;
+        }
+    }
+});
+
+test("getOracleClientInitConfig() resolves the Oracle instant client directory for thick mode", () => {
+    const previousHome = process.env.ORACLE_HOME;
+    const previousLibDir = process.env.ORACLE_CLIENT_LIB_DIR;
+
+    process.env.ORACLE_HOME = "/opt/oracle/instantclient";
+    delete process.env.ORACLE_CLIENT_LIB_DIR;
+
+    try {
+        const oracleMonitor = new OracleDbMonitorType();
+        assert.deepStrictEqual(oracleMonitor.getOracleClientInitConfig(), { libDir: "/opt/oracle/instantclient" });
+    } finally {
+        if (previousHome === undefined) {
+            delete process.env.ORACLE_HOME;
+        } else {
+            process.env.ORACLE_HOME = previousHome;
+        }
+
+        if (previousLibDir === undefined) {
+            delete process.env.ORACLE_CLIENT_LIB_DIR;
+        } else {
+            process.env.ORACLE_CLIENT_LIB_DIR = previousLibDir;
+        }
+    }
+});
+
 describe(
     "Oracle Database Monitor",
     {
